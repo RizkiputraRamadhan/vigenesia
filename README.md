@@ -11,16 +11,23 @@ To get started with this project, follow these steps:
 Clone the repository using Git:
 
 # Clone the repository
+```
 git clone https://github.com/RizkiputraRamadhan/vigenesia.git
+```
 
 # Navigate to the project directory
+```
 cd vigenesia
+```
 
 # Install dependencies
+```
 flutter pub get
+```
 
 # Run the app
+```
 flutter run
-
+```
 
 
