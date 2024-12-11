@@ -1,17 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:vigenesia/Components/AddPost.dart';
 import 'package:vigenesia/utils/BottomNavItem.dart'; // Import BottomNavItem
 
-class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
+class MyPostPages extends StatefulWidget {
+  const MyPostPages({Key? key}) : super(key: key);
 
   @override
-  _HomePageState createState() => _HomePageState();
+  _MyPostPageState createState() => _MyPostPageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _MyPostPageState extends State<MyPostPages> {
   bool _isSearching = false;
-  int _menus = 0;
+  int _menus = 2;
+  bool isBold = false;
+  bool isItalic = false;
 
+  @override
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -32,7 +36,7 @@ class _HomePageState extends State<HomePage> {
         title: AnimatedSwitcher(
           duration: Duration(milliseconds: 300),
           child: _isSearching
-              ? const TextField(
+              ? TextField(
                   key: ValueKey('searchField'),
                   decoration: InputDecoration(
                     hintText: 'Cari...',
@@ -42,7 +46,7 @@ class _HomePageState extends State<HomePage> {
                   style: TextStyle(color: Colors.black),
                   autofocus: true,
                 )
-              : const Text(
+              : Text(
                   'VGS',
                   key: ValueKey('title'),
                   style: TextStyle(
@@ -64,56 +68,116 @@ class _HomePageState extends State<HomePage> {
             ),
         ],
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Stories Section
-            Container(
-              height: 120,
-              padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                children: [
-                  makeStory(userImage: 'assets/images/user.png', userName: 'Your Story'),
-                  makeStory(userImage: 'assets/images/user.png', userName: 'James'),
-                  makeStory(userImage: 'assets/images/user.png', userName: 'Fernanda'),
-                  makeStory(userImage: 'assets/images/user.png', userName: 'Daniela'),
-                ],
-              ),
+      body: Stack(
+        children: [
+          SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Posts Section
+                Padding(
+                  padding: EdgeInsets.all(10),
+                  child: Column(
+                    children: [
+                      makePost(
+                        context: context,
+                        userName: 'Daniela Fernández Ramos',
+                        userImage: 'assets/images/user.png',
+                        feedTime: '3 hours ago',
+                        feedText:
+                            'Me encanta la sesión de fotos que me hizo mi amigo. 🌟😍',
+                      ),
+                      makePost(
+                        context: context,
+                        userName: 'Daniela Fernández Ramos',
+                        userImage: 'assets/images/user.png',
+                        feedTime: '3 hours ago',
+                        feedText:
+                            'Me encanta la sesión de fotos que me hizo mi amigo. 🌟😍',
+                      ),
+                      makePost(
+                        context: context,
+                        userName: 'Daniela Fernández Ramos',
+                        userImage: 'assets/images/user.png',
+                        feedTime: '3 hours ago',
+                        feedText:
+                            'Me encanta la sesión de fotos que me hizo mi amigo. 🌟😍',
+                      ),
+                      makePost(
+                        context: context,
+                        userName: 'Daniela Fernández Ramos',
+                        userImage: 'assets/images/user.png',
+                        feedTime: '3 hours ago',
+                        feedText:
+                            'Me encanta la sesión de fotos que me hizo mi amigo. 🌟😍',
+                      ),
+                      makePost(
+                        context: context,
+                        userName: 'Daniela Fernández Ramos',
+                        userImage: 'assets/images/user.png',
+                        feedTime: '3 hours ago',
+                        feedText:
+                            'Me encanta la sesión de fotos que me hizo mi amigo. 🌟😍',
+                      ),
+                      makePost(
+                        context: context,
+                        userName: 'Daniela Fernández Ramos',
+                        userImage: 'assets/images/user.png',
+                        feedTime: '3 hours ago',
+                        feedText:
+                            'Me encanta la sesión de fotos que me hizo mi amigo. 🌟😍',
+                      ),
+                      makePost(
+                        context: context,
+                        userName: 'Daniela Fernández Ramos',
+                        userImage: 'assets/images/user.png',
+                        feedTime: '3 hours ago',
+                        feedText:
+                            'Me encanta la sesión de fotos que me hizo mi amigo. 🌟😍',
+                      ),
+                      makePost(
+                        context: context,
+                        userName: 'Daniela Fernández Ramos',
+                        userImage: 'assets/images/user.png',
+                        feedTime: '3 hours ago',
+                        feedText:
+                            'Me encanta la sesión de fotos que me hizo mi amigo. 🌟😍',
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
-
-            // Posts Section
-            Padding(
-              padding: EdgeInsets.all(10),
-              child: Column(
-                children: [
-                  makePost(
-                    context: context,
-                    userName: 'Daniela Fernández Ramos',
-                    userImage: 'assets/images/user.png',
-                    feedTime: '3 hours ago',
-                    feedText: 'Me encanta la sesión de fotos que me hizo mi amigo. 🌟😍',
-                  ),
-                  makePost(
-                    context: context,
-                    userName: 'James Collins',
-                    userImage: 'assets/images/user.png',
-                    feedTime: '5 hours ago',
-                    feedText: 'Had an amazing weekend with friends!',
-                  ),
-                  makePost(
-                    context: context,
-                    userName: 'James Collins',
-                    userImage: 'assets/images/user.png',
-                    feedTime: '5 hours ago',
-                    feedText: 'Had an amazing weekend with friends!',
-                  ),
-                ],
-              ),
+          ),
+          Positioned(
+            bottom: 16,
+            right: 16,
+            child: FloatingActionButton(
+              onPressed: () {
+                showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  builder: (BuildContext context) {
+                    return Padding(
+                      padding: EdgeInsets.only(
+                        bottom: MediaQuery.of(context).viewInsets.bottom,
+                        left: 16,
+                        right: 16,
+                        top: 16,
+                      ),
+                      child: AddPostModal(
+                        onSubmit: (content) {
+                          print('konten : $content');
+                        },
+                      ),
+                    );
+                  },
+                );
+              },
+              child: Icon(Icons.add),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
       bottomNavigationBar: BottomNavItem(
         currentIndex: _menus,
@@ -122,35 +186,6 @@ class _HomePageState extends State<HomePage> {
             _menus = index;
           });
         },
-      ),
-    );
-  }
-
-  Widget makeStory({required String userImage, required String userName}) {
-    return Container(
-      margin: EdgeInsets.only(right: 10),
-      width: 80,
-      child: Column(
-        children: [
-          Container(
-            width: 70,
-            height: 70,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              image: DecorationImage(
-                image: AssetImage(userImage),
-                fit: BoxFit.cover,
-              ),
-            ),
-          ),
-          SizedBox(height: 5),
-          Text(
-            userName,
-            style: TextStyle(fontSize: 12, color: Colors.black),
-            textAlign: TextAlign.center,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ],
       ),
     );
   }
@@ -260,4 +295,3 @@ class _HomePageState extends State<HomePage> {
     );
   }
 }
-  

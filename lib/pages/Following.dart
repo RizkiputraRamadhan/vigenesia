@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:vigenesia/utils/BottomNavItem.dart'; // Import BottomNavItem
+import 'package:vigenesia/utils/BottomNavItem.dart';
 
-class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
+class FollowingPage extends StatefulWidget {
+  const FollowingPage({Key? key}) : super(key: key);
 
   @override
-  _HomePageState createState() => _HomePageState();
+  _FollowingPageState createState() => _FollowingPageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _FollowingPageState extends State<FollowingPage> {
   bool _isSearching = false;
-  int _menus = 0;
+  int _menus = 1;
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +32,7 @@ class _HomePageState extends State<HomePage> {
         title: AnimatedSwitcher(
           duration: Duration(milliseconds: 300),
           child: _isSearching
-              ? const TextField(
+              ? TextField(
                   key: ValueKey('searchField'),
                   decoration: InputDecoration(
                     hintText: 'Cari...',
@@ -42,7 +42,7 @@ class _HomePageState extends State<HomePage> {
                   style: TextStyle(color: Colors.black),
                   autofocus: true,
                 )
-              : const Text(
+              : Text(
                   'VGS',
                   key: ValueKey('title'),
                   style: TextStyle(
@@ -68,46 +68,28 @@ class _HomePageState extends State<HomePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Stories Section
-            Container(
-              height: 120,
-              padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                children: [
-                  makeStory(userImage: 'assets/images/user.png', userName: 'Your Story'),
-                  makeStory(userImage: 'assets/images/user.png', userName: 'James'),
-                  makeStory(userImage: 'assets/images/user.png', userName: 'Fernanda'),
-                  makeStory(userImage: 'assets/images/user.png', userName: 'Daniela'),
-                ],
-              ),
-            ),
-
             // Posts Section
             Padding(
               padding: EdgeInsets.all(10),
               child: Column(
                 children: [
-                  makePost(
+                  FollowerProfile(
                     context: context,
                     userName: 'Daniela Fernández Ramos',
                     userImage: 'assets/images/user.png',
                     feedTime: '3 hours ago',
-                    feedText: 'Me encanta la sesión de fotos que me hizo mi amigo. 🌟😍',
                   ),
-                  makePost(
+                  FollowerProfile(
                     context: context,
                     userName: 'James Collins',
                     userImage: 'assets/images/user.png',
                     feedTime: '5 hours ago',
-                    feedText: 'Had an amazing weekend with friends!',
                   ),
-                  makePost(
+                  FollowerProfile(
                     context: context,
                     userName: 'James Collins',
                     userImage: 'assets/images/user.png',
                     feedTime: '5 hours ago',
-                    feedText: 'Had an amazing weekend with friends!',
                   ),
                 ],
               ),
@@ -126,41 +108,11 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget makeStory({required String userImage, required String userName}) {
-    return Container(
-      margin: EdgeInsets.only(right: 10),
-      width: 80,
-      child: Column(
-        children: [
-          Container(
-            width: 70,
-            height: 70,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              image: DecorationImage(
-                image: AssetImage(userImage),
-                fit: BoxFit.cover,
-              ),
-            ),
-          ),
-          SizedBox(height: 5),
-          Text(
-            userName,
-            style: TextStyle(fontSize: 12, color: Colors.black),
-            textAlign: TextAlign.center,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget makePost({
+  Widget FollowerProfile({
     required BuildContext context,
     required String userName,
     required String userImage,
     required String feedTime,
-    required String feedText,
   }) {
     return Container(
       margin: EdgeInsets.only(bottom: 10),
@@ -208,7 +160,7 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ),
                       Text(
-                        feedTime,
+                        'followed ${feedTime}' ,
                         style: TextStyle(fontSize: 12, color: Colors.grey),
                       ),
                     ],
@@ -227,18 +179,8 @@ class _HomePageState extends State<HomePage> {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             ListTile(
-                              leading: Icon(Icons.person_add_alt_1_outlined),
-                              title: Text('Follow/Unfollow'),
-                              onTap: () {},
-                            ),
-                            ListTile(
-                              leading: Icon(Icons.edit_outlined),
-                              title: Text('Edit Post'),
-                              onTap: () {},
-                            ),
-                            ListTile(
-                              leading: Icon(Icons.delete_outline),
-                              title: Text('Delete Post'),
+                              leading: Icon(Icons.person_off),
+                              title: Text('Unfollowing'),
                               onTap: () {},
                             ),
                           ],
@@ -250,14 +192,8 @@ class _HomePageState extends State<HomePage> {
               ),
             ],
           ),
-          SizedBox(height: 10),
-          Text(
-            feedText,
-            style: TextStyle(fontSize: 14, color: Colors.black),
-          ),
         ],
       ),
     );
   }
 }
-  
