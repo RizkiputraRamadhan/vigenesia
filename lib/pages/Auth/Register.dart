@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:vigenesia/API/Auth.dart';
 import 'package:vigenesia/utils/ButtonGlobal.dart';
 import 'package:vigenesia/utils/TextFromGlobal.dart';
 import 'package:vigenesia/utils/global.color.dart';
@@ -15,6 +16,40 @@ class _RegisterPageState extends State<RegisterPage> {
   final TextEditingController passController = TextEditingController();
   final TextEditingController confirmPassController = TextEditingController();
 
+  bool isLoading = false;
+
+  void handleRegister() async {
+    final username = userController.text.trim();
+    final password = passController.text.trim();
+    final confirmPassword = confirmPassController.text.trim();
+
+    setState(() {
+      isLoading = true;
+    });
+
+    final response = await AuthService.Register(username, password, confirmPassword);
+
+    setState(() {
+      isLoading = false;
+    });
+
+    if (response['status'] == 200) {
+      showSnackbar('Registrasi berhasil!', Colors.green);
+      Navigator.pushNamed(context, '/');
+    } else {
+      showSnackbar(response['message'] ?? 'Terjadi kesalahan.', Colors.red);
+    }
+  }
+
+  void showSnackbar(String message, Color color) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: color,
+        duration: Duration(seconds: 2),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -71,10 +106,8 @@ class _RegisterPageState extends State<RegisterPage> {
                 ),
                 const SizedBox(height: 10),
                 ButtonGlobal(
-                  text: 'Sign Up',
-                  onPressed: () {
-                    print('register');
-                  },
+                  text: isLoading ? 'Loading...' : 'Sign Up', 
+                  onPressed: isLoading ? () {} : handleRegister, 
                 ),
                 const SizedBox(height: 50),
               ],
@@ -88,13 +121,11 @@ class _RegisterPageState extends State<RegisterPage> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Text(
-              'Already have an account?',
-            ),
+            const Text('Already have an account?'),
             const SizedBox(width: 5),
             InkWell(
               onTap: () {
-                Navigator.pushNamed(context, '/login'); 
+                Navigator.pushNamed(context, '/login');
               },
               child: Text(
                 'Sign In',

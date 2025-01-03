@@ -1,0 +1,1 @@
+const String API = 'https://backend_vigenesia_laravel.test/api';

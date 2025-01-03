@@ -1,11 +1,11 @@
-// file: component/AddPost.dart
+// file: component/EditPost.dart
 import 'package:flutter/material.dart';
 import 'package:vigenesia/utils/global.color.dart';
 
-class AddPost extends StatelessWidget {
+class EditPost extends StatelessWidget {
   final Function(String content)? onSubmit;
 
-  const AddPost({super.key, this.onSubmit});
+  const EditPost({super.key, this.onSubmit});
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +26,7 @@ class AddPost extends StatelessWidget {
                     right: 16,
                     top: 16,
                   ),
-                  child: AddPostModal(onSubmit: onSubmit),
+                  child: EditPostModal(onSubmit: onSubmit),
                 );
               },
             );
@@ -39,18 +39,26 @@ class AddPost extends StatelessWidget {
   }
 }
 
-class AddPostModal extends StatefulWidget {
+class EditPostModal extends StatefulWidget {
   final Function(String content)? onSubmit;
+  final String? initialContent; // Add a parameter for initial content
 
-  const AddPostModal({super.key, this.onSubmit});
+  const EditPostModal({super.key, this.onSubmit, this.initialContent});
 
   @override
-  _AddPostModalState createState() => _AddPostModalState();
+  _EsitPostModalState createState() => _EsitPostModalState();
 }
 
-class _AddPostModalState extends State<AddPostModal> {
+class _EsitPostModalState extends State<EditPostModal> {
   final TextEditingController _controller = TextEditingController();
 
+  @override
+  void initState() {
+    super.initState();
+    if (widget.initialContent != null) {
+      _controller.text = widget.initialContent!;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -59,21 +67,20 @@ class _AddPostModalState extends State<AddPostModal> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const SizedBox(height: 16),
           const Text(
-            'Buat Postingan Terbaru Kamu..',
-            style: TextStyle(letterSpacing: 0.5,fontSize: 18, fontWeight: FontWeight.bold),
+            'Perbarui Postingan Kamu..',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 16),
           TextField(
             controller: _controller,
             maxLines: 5,
             decoration: const InputDecoration(
-              hintText: 'Tulis apa yang anda dipikiranmu',
+              hintText: 'Tulis apa yang anda dipikiranmu...',
               border: OutlineInputBorder(),
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 20),
           ElevatedButton(
             onPressed: () {
               if (widget.onSubmit != null) {

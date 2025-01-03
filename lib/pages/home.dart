@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:vigenesia/utils/BottomNavItem.dart'; // Import BottomNavItem
+import 'package:vigenesia/API/Posts.dart';
+import 'package:vigenesia/API/Users.dart';
+import 'package:vigenesia/Components/NavBar.dart';
+import 'package:vigenesia/Helpers/Sessions.dart';
+import 'package:vigenesia/utils/BottomNavItem.dart';
+import 'package:vigenesia/utils/global.color.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -9,107 +14,166 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  bool _isSearching = false;
   int _menus = 0;
+  bool isLoading = true;
+  String finalFollowerCount = '';
+  List<dynamic> finalUserFollowers = [];
+  List<dynamic> finalPostData = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+    _loadPostData();
+    _loadFollowerData();
+  }
+
+  void _showSnackBar(String message, bool isSuccess) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: isSuccess ? Colors.green : Colors.red,
+      ),
+    );
+  }
+
+// Load data auth
+  Future<void> _loadUserData() async {
+    try {
+      final profileData = await UsersService.getProfile();
+      setState(() {
+        finalFollowerCount = profileData['following_count']?.toString() ?? '';
+        isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
+      print("Error fetching data: $e");
+    }
+  }
+
+  Future<void> _loadFollowerData() async {
+    try {
+      final userFollow = await UsersService.UserFollowers();
+      setState(() {
+        finalUserFollowers = userFollow['data'];
+        isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
+      print("Error fetching data: $e");
+    }
+  }
+
+  Future<void> _loadPostData() async {
+    try {
+      final postData = await PostsService.getFollowedPost();
+      setState(() {
+        finalPostData = postData['posts'];
+        isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
+      print("Error fetching data: $e");
+    }
+  }
+
+  Future<void> _handleUnfollow(username) async {
+    final postData = await UsersService.UnFollowByUsername(username);
+    try {
+      _loadPostData();
+      _showSnackBar(postData['message'], true);
+    } catch (e) {
+      _showSnackBar(postData['message'], true);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    if (finalFollowerCount == '0') {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Navigator.pushNamed(context, '/no_friends');
+      });
+    }
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: _isSearching
-            ? IconButton(
-                icon: Icon(Icons.arrow_back, color: Colors.black),
-                onPressed: () {
-                  setState(() {
-                    _isSearching = false;
-                  });
-                },
-              )
-            : null,
-        title: AnimatedSwitcher(
-          duration: Duration(milliseconds: 300),
-          child: _isSearching
-              ? const TextField(
-                  key: ValueKey('searchField'),
-                  decoration: InputDecoration(
-                    hintText: 'Cari...',
-                    border: InputBorder.none,
-                    hintStyle: TextStyle(color: Colors.grey),
-                  ),
-                  style: TextStyle(color: Colors.black),
-                  autofocus: true,
-                )
-              : const Text(
-                  'VGS',
-                  key: ValueKey('title'),
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-        ),
-        actions: [
-          if (!_isSearching)
-            IconButton(
-              icon: Icon(Icons.search, color: Colors.black),
-              onPressed: () {
-                setState(() {
-                  _isSearching = true;
-                });
-              },
-            ),
-        ],
-      ),
+      appBar: CustomNavbar(),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Stories Section
             Container(
               height: 120,
               padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-              child: ListView(
-                scrollDirection: Axis.horizontal,
+              child: Row(
                 children: [
-                  makeStory(userImage: 'assets/images/user.png', userName: 'Your Story'),
-                  makeStory(userImage: 'assets/images/user.png', userName: 'James'),
-                  makeStory(userImage: 'assets/images/user.png', userName: 'Fernanda'),
-                  makeStory(userImage: 'assets/images/user.png', userName: 'Daniela'),
+                  Expanded(
+                    child: ListView(
+                      scrollDirection: Axis.horizontal,
+                      children: finalUserFollowers.isEmpty
+                          ? const [Text('Belum ada teman')]
+                          : finalUserFollowers.map((follow) {
+                              return makeStory(
+                                userImage: 'assets/images/user.png',
+                                userName: follow['username'],
+                              );
+                            }).toList(),
+                    ),
+                  ),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      MouseRegion(
+                        cursor: SystemMouseCursors.click,
+                        child: GestureDetector(
+                          onTap: () {
+                            Navigator.pushNamed(context, '/no_friends');
+                          },
+                          child: Container(
+                            width: 58,
+                            height: 58,
+                            decoration: BoxDecoration(
+                              color: GlobalColors.mainColor,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              Icons.add,
+                              color: Colors.white,
+                              size: 30,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 5),
+                      const Text(
+                        'Tambah Teman',
+                        style: TextStyle(fontSize: 12),
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),
-
-            // Posts Section
             Padding(
-              padding: EdgeInsets.all(10),
+              padding: const EdgeInsets.all(10),
               child: Column(
-                children: [
-                  makePost(
-                    context: context,
-                    userName: 'Daniela Fernández Ramos',
-                    userImage: 'assets/images/user.png',
-                    feedTime: '3 hours ago',
-                    feedText: 'Me encanta la sesión de fotos que me hizo mi amigo. 🌟😍',
-                  ),
-                  makePost(
-                    context: context,
-                    userName: 'James Collins',
-                    userImage: 'assets/images/user.png',
-                    feedTime: '5 hours ago',
-                    feedText: 'Had an amazing weekend with friends!',
-                  ),
-                  makePost(
-                    context: context,
-                    userName: 'James Collins',
-                    userImage: 'assets/images/user.png',
-                    feedTime: '5 hours ago',
-                    feedText: 'Had an amazing weekend with friends!',
-                  ),
-                ],
+                children: finalPostData.isEmpty
+                    ? const [Text("Belum ada postingan")]
+                    : finalPostData.map((post) {
+                        return makePost(
+                          context: context,
+                          id: post['id'],
+                          userName: post['user']['username'],
+                          userImage: 'assets/images/user.png',
+                          feedTime: post['created_at'],
+                          feedText: post['status'],
+                        );
+                      }).toList(),
               ),
             ),
           ],
@@ -157,14 +221,15 @@ class _HomePageState extends State<HomePage> {
 
   Widget makePost({
     required BuildContext context,
+    required int id,
     required String userName,
     required String userImage,
     required String feedTime,
     required String feedText,
   }) {
     return Container(
-      margin: EdgeInsets.only(bottom: 10),
-      padding: EdgeInsets.all(10),
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(8),
@@ -195,13 +260,13 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
                   ),
-                  SizedBox(width: 10),
+                  const SizedBox(width: 10),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         userName,
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                           color: Colors.black,
@@ -209,37 +274,31 @@ class _HomePageState extends State<HomePage> {
                       ),
                       Text(
                         feedTime,
-                        style: TextStyle(fontSize: 12, color: Colors.grey),
+                        style:
+                            const TextStyle(fontSize: 12, color: Colors.grey),
                       ),
                     ],
                   ),
                 ],
               ),
               IconButton(
-                icon: Icon(Icons.more_horiz, color: Colors.black),
+                icon: const Icon(Icons.more_horiz, color: Colors.black),
                 onPressed: () {
                   showModalBottomSheet(
                     context: context,
                     builder: (context) {
                       return Container(
-                        padding: EdgeInsets.all(20),
+                        padding: const EdgeInsets.all(20),
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             ListTile(
-                              leading: Icon(Icons.person_add_alt_1_outlined),
-                              title: Text('Follow/Unfollow'),
-                              onTap: () {},
-                            ),
-                            ListTile(
-                              leading: Icon(Icons.edit_outlined),
-                              title: Text('Edit Post'),
-                              onTap: () {},
-                            ),
-                            ListTile(
-                              leading: Icon(Icons.delete_outline),
-                              title: Text('Delete Post'),
-                              onTap: () {},
+                              leading: Icon(Icons.person_off),
+                              title: Text('Unfollow'),
+                              onTap: () {
+                                Navigator.pop(context);
+                                _handleUnfollow(userName);
+                              },
                             ),
                           ],
                         ),
@@ -250,14 +309,13 @@ class _HomePageState extends State<HomePage> {
               ),
             ],
           ),
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
           Text(
             feedText,
-            style: TextStyle(fontSize: 14, color: Colors.black),
+            style: const TextStyle(fontSize: 14, color: Colors.black),
           ),
         ],
       ),
     );
   }
 }
-  

@@ -3,22 +3,22 @@ import 'package:vigenesia/API/Users.dart';
 import 'package:vigenesia/Components/NavBar.dart';
 import 'package:vigenesia/utils/BottomNavItem.dart';
 
-class FollowingPage extends StatefulWidget {
-  const FollowingPage({Key? key}) : super(key: key);
+class NoFriendsPage extends StatefulWidget {
+  const NoFriendsPage({Key? key}) : super(key: key);
 
   @override
-  _FollowingPageState createState() => _FollowingPageState();
+  _NoFriendsState createState() => _NoFriendsState();
 }
 
-class _FollowingPageState extends State<FollowingPage> {
-  int _menus = 1;
+class _NoFriendsState extends State<NoFriendsPage> {
+  int _menus = 0;
   bool isLoading = true;
-  List<dynamic> finalUserFollowers = [];
+  List<dynamic> post = [];
 
   @override
   void initState() {
     super.initState();
-    _loadFollowerData();
+    _loadUserData();
   }
 
   void _showSnackBar(String message, bool isSuccess) {
@@ -30,11 +30,12 @@ class _FollowingPageState extends State<FollowingPage> {
     );
   }
 
-  Future<void> _loadFollowerData() async {
+// Load data auth
+  Future<void> _loadUserData() async {
     try {
-      final userFollow = await UsersService.UserFollowers();
+      final datas = await UsersService.getAll();
       setState(() {
-        finalUserFollowers = userFollow['data'];
+        post = datas['users'];
         isLoading = false;
       });
     } catch (e) {
@@ -45,13 +46,25 @@ class _FollowingPageState extends State<FollowingPage> {
     }
   }
 
-  Future<void> _handleUnfollow(username) async {
-    final postData = await UsersService.UnFollowByUsername(username);
+  // dancle follow user
+  Future<void> _handleFollow(String username) async {
+    final datas = await UsersService.FollowByUsername(username);
     try {
-      _loadFollowerData();
-      _showSnackBar(postData['message'], true);
+      _loadUserData();
+      _showSnackBar(datas['message'], true);
     } catch (e) {
-      _showSnackBar(postData['message'], true);
+      _showSnackBar(datas['message'], false);
+    }
+  }
+
+  // handle unfollow user
+  Future<void> _handleUnFollow(String username) async {
+    final datas = await UsersService.UnFollowByUsername(username);
+    try {
+      _loadUserData();
+      _showSnackBar(datas['message'], true);
+    } catch (e) {
+      _showSnackBar(datas['message'], false);
     }
   }
 
@@ -68,16 +81,17 @@ class _FollowingPageState extends State<FollowingPage> {
             Padding(
               padding: EdgeInsets.all(10),
               child: Column(
-                  children: finalUserFollowers.isEmpty
-                      ? const [Text('Belum ada teman')]
-                      : finalUserFollowers.map((follow) {
-                          return FollowerProfile(
-                            context: context,
-                            userName: follow['username'],
-                            userImage: 'assets/images/user.png',
-                            feedTime: follow['created_at'],
-                          );
-                        }).toList()),
+                children: post.isEmpty
+                    ? const [Text("Belum ada teman disini.")]
+                    : post.map((pos) {
+                        return FollowerProfile(
+                          context: context,
+                          userName: pos['username'],
+                          userImage: 'assets/images/user.png',
+                          feedTime: pos['created_at'],
+                        );
+                      }).toList(),
+              ),
             ),
           ],
         ),
@@ -93,6 +107,7 @@ class _FollowingPageState extends State<FollowingPage> {
     );
   }
 
+// widget follwo profil
   Widget FollowerProfile({
     required BuildContext context,
     required String userName,
@@ -145,7 +160,7 @@ class _FollowingPageState extends State<FollowingPage> {
                         ),
                       ),
                       Text(
-                        'Mengikuti ${feedTime}',
+                        'Bergabung ${feedTime}',
                         style: TextStyle(fontSize: 12, color: Colors.grey),
                       ),
                     ],
@@ -153,29 +168,9 @@ class _FollowingPageState extends State<FollowingPage> {
                 ],
               ),
               IconButton(
-                icon: Icon(Icons.more_horiz, color: Colors.black),
+                icon: Icon(Icons.person_add_alt, color: Colors.black),
                 onPressed: () {
-                  showModalBottomSheet(
-                    context: context,
-                    builder: (context) {
-                      return Container(
-                        padding: EdgeInsets.all(20),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            ListTile(
-                              leading: Icon(Icons.person_off),
-                              title: Text('Unfollow'),
-                              onTap: () {
-                                Navigator.pop(context);
-                                _handleUnfollow(userName);
-                              },
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                  );
+                  _handleFollow(userName);
                 },
               ),
             ],

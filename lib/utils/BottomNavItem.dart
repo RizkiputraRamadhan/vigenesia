@@ -32,17 +32,11 @@ class BottomNavItem extends StatelessWidget {
           ),
           label: 'Following',
         ),
+      
         BottomNavigationBarItem(
           icon: Icon(
-            Icons.podcasts,
+            Icons.person_2_outlined,
             color: currentIndex == 2 ? GlobalColors.mainColor : const Color.fromARGB(255, 36, 36, 36),
-          ),
-          label: 'My Post',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(
-            Icons.person_4_sharp,
-            color: currentIndex == 3 ? GlobalColors.mainColor : const Color.fromARGB(255, 36, 36, 36),
           ),
           label: 'Profile',
         ),
@@ -56,9 +50,6 @@ class BottomNavItem extends StatelessWidget {
             Navigator.pushReplacementNamed(context, '/following');
             break;
           case 2:
-            Navigator.pushReplacementNamed(context, '/myPost');
-            break;
-          case 3:
             Navigator.pushReplacementNamed(context, '/profile');
             break;
         }
